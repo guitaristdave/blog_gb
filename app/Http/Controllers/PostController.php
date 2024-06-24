@@ -13,6 +13,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::all();
+        return view('posts.index', compact('posts'));
     }
 
     /**
@@ -20,7 +21,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -28,7 +29,12 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $post = new Post();
+        $post->title = $request->input('title');
+        $post->content = $request->input('content');
+        $post->user_id = $request->input('user_id');
+        $post->save();
+        return redirect('/posts');
     }
 
     /**
@@ -36,30 +42,33 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $post = Post::query()->findOrFail($id);
+        return view('posts.show', compact('post'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Post $post)
     {
-        //
+        return view('posts.edit', compact('post'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        $post->update($request->all());
+        return redirect('/posts');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return redirect('/posts');
     }
 }
