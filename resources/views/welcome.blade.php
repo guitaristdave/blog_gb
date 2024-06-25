@@ -165,3 +165,7 @@
         </div>
     </div>
 @endsection
+
+<style lang="scss">
+
+</style>
