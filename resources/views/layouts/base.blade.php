@@ -15,12 +15,13 @@
 </head>
 <body>
 <div class="d-flex flex-column justify-content-between min-vh-100">
+    @include('layouts.navigation')
+    @yield('header')
 {{--    @include('includes.header')--}}
 
     <main class="flex-grow-1 py-3">
         @yield('content')
     </main>
-
 {{--    @include('includes.footer')--}}
 </div>
 </body>
