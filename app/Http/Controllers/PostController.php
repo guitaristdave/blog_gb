@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use \App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -14,6 +16,12 @@ class PostController extends Controller
     {
         $posts = Post::all();
         return view('posts.index', compact('posts'));
+    }
+
+    public function indexByUser(Request $request, int $user_id)
+    {
+        $posts = Post::query()->where('user_id', $user_id)->get();
+        return view('posts.user', compact('posts'));
     }
 
     /**
@@ -32,7 +40,7 @@ class PostController extends Controller
         $post = new Post();
         $post->title = $request->input('title');
         $post->content = $request->input('content');
-        $post->user_id = $request->input('user_id');
+        $post->user_id = Auth::id();
         $post->save();
         return redirect('/posts');
     }
