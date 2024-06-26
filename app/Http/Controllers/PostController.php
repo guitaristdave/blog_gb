@@ -6,6 +6,8 @@ use App\Models\Post;
 use \App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 
 class PostController extends Controller
 {
@@ -14,8 +16,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
-        return view('posts.index', compact('posts'));
+        $posts = DB::table('posts')
+        ->join('users', 'users.id', '=', 'posts.user_id')
+        ->select('posts.*', 'users.name')
+        ->paginate(10);
+        return view('feed.index', compact('posts'));
     }
 
     public function indexByUser(Request $request, int $user_id)
@@ -48,10 +53,14 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     {
-        $post = Post::query()->findOrFail($id);
-        return view('posts.show', compact('post'));
+        $post = DB::table('posts')
+        ->join('users', 'users.id', '=', 'posts.user_id')
+        ->select('posts.*', 'users.name')
+        ->where('posts.id', $id)
+        ->first();
+        return view('feed.show', compact('post'));
     }
 
     /**
