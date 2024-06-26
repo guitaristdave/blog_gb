@@ -11,7 +11,7 @@
     <div class="wrapper py-10">
         <div class="container mx-auto">
             @if(count($posts) > 0)
-                <div class="list grid grid-cols-3 gap-4">
+                <div class="list grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
                     @foreach ($posts as $post)
                         <div class="item rounded-lg p-5">
                             <p class="text-xl font-bold pb-3">
@@ -22,6 +22,9 @@
                             </p>
                         </div>
                     @endforeach
+                </div>
+                <div class="mt-4 px-4">
+                    {{ $posts->onEachSide(3)->links() }}
                 </div>
             @else
                 No publications
