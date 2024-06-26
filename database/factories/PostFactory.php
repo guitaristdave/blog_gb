@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class PostFactory extends Factory
         return [
             'title' => fake()->sentence(5),
             'content' => fake()->text(300),
-            'user_id' => fake()->numberBetween(1, 3),
+            'user_id' => fake()->numberBetween(1, User::all()->count()),
         ];
     }
 }
