@@ -20,3 +20,5 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+Route::get('/feed', [\App\Http\Controllers\PostController::class, 'index'])->name('feed');
+Route::get('/feed/{post}', [\App\Http\Controllers\PostController::class, 'show'])->name('feed.show');
