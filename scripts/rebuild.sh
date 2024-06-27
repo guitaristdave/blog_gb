@@ -3,6 +3,10 @@
 
 cd "`dirname $0`/../" && clear # set root path
 
+if [[ ! -d ./vendor ]] || [[ ! -f ./composer.lock ]]; then
+    composer update
+fi
+
 docker compose build --no-cache
 docker compose up -d
 
