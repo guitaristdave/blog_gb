@@ -14,15 +14,33 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, ?string $username = null)
     {
-        $posts = DB::table('posts')
-        ->join('users', 'users.id', '=', 'posts.user_id')
-        ->select('posts.*', 'users.name')
-        ->paginate(10);
+        if (is_null($username)) {
+            $posts = DB::table('posts')
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->select('posts.*', 'users.name')
+                ->paginate(10);
+        } else {
+            $user = User::query()->where('name', $username)->first();
+            if (!$user) {
+                abort(404);
+            }
+            $posts = DB::table('posts')
+                ->where('user_id', '=', $user->id)
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->select('posts.*', 'users.name')
+                ->paginate(10);
+        }
+
         return view('feed.index', compact('posts'));
     }
 
+//    public function userPosts(Request $request)
+//    {
+//        $posts = DB::table('posts')->where('user_id', $user->id)->paginate(10);
+//        return view('feed.index', compact('posts'));
+//    }
 
     /**
      * Show the form for creating a new resource.

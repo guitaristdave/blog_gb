@@ -22,8 +22,10 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::get('feed/create', [\App\Http\Controllers\PostController::class, 'create'])->name('feed.create');
+Route::get('feed/{username}', [\App\Http\Controllers\PostController::class, 'index'])->name('feed.show-user');
 Route::get('/feed', [\App\Http\Controllers\PostController::class, 'index'])->name('feed');
 Route::get('/feed/{post}', [\App\Http\Controllers\PostController::class, 'show'])->name('feed.show');
 Route::post('feed', [\App\Http\Controllers\PostController::class, 'store'])->name('feed.store');
 Route::get('feed/{post}/edit', [\App\Http\Controllers\PostController::class, 'edit'])->name('feed.edit');
 Route::patch('feed/{post}', [\App\Http\Controllers\PostController::class, 'update'])->name('feed.update');
+
