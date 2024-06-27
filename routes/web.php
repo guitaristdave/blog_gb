@@ -15,6 +15,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/own-posts', [ProfileController::class, 'posts'])->name('profile.posts');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile', [ProfileController::class, 'updateUser'])->name('profile.update-user');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
