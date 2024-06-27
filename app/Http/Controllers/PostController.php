@@ -34,7 +34,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        return view('feed.create');
     }
 
     /**
@@ -42,12 +42,22 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        $errorMessages = [
+            'title.required' => 'Пожалуйста, укажите заголовок поста.',
+            'title.unique' => 'Такой заголовок уже существует',
+            'title.max' => 'Заголовок не может быть больше 255 символов',
+            'content.required' => 'Пожалуйста, введите содержимое поста.'
+        ];
+        $validatedData = $request->validate([
+            'title' => 'required|unique:posts|max:255',
+            'content' => 'required',
+        ], $errorMessages);
         $post = new Post();
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
+        $post->title = $validatedData['title'];
+        $post->content = $validatedData['content'];
         $post->user_id = Auth::id();
         $post->save();
-        return redirect('/posts');
+        return redirect('/feed')->with('message', 'Post created!');
     }
 
     /**
