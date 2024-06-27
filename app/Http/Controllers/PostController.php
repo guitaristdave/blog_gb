@@ -20,6 +20,7 @@ class PostController extends Controller
             $posts = DB::table('posts')
                 ->join('users', 'users.id', '=', 'posts.user_id')
                 ->select('posts.*', 'users.name')
+                ->orderByDesc('created_at')
                 ->paginate(10);
         } else {
             $user = User::query()->where('name', $username)->first();
@@ -55,23 +56,43 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+
         $errorMessages = [
             'title.required' => 'Пожалуйста, укажите заголовок поста.',
             'title.unique' => 'Такой заголовок уже существует',
             'title.max' => 'Заголовок не может быть больше 255 символов',
-            'content.required' => 'Пожалуйста, введите содержимое поста.'
+            'content.required' => 'Пожалуйста, введите содержимое поста.',
+            'image.required' => 'Пожалуйста, загрузите фото.',
+            'image.image' => 'Файл должен быть изображением.',
+            'image.mimes' => 'Поддерживаемые форматы изображений: jpeg, png, jpg.',
+            'image.max' => 'Максимальный размер изображения 2MB.',
         ];
+
         $validatedData = $request->validate([
             'title' => 'required|unique:posts|max:255',
             'content' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ], $errorMessages);
-        $post = new Post();
-        $post->title = $validatedData['title'];
-        $post->content = $validatedData['content'];
-        $post->user_id = Auth::id();
-        $post->save();
-        return redirect('/feed')->with('message', 'Post created!');
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension(); // Получаем расширение файла
+            $image->storeAs('public/images', $imageName);
+
+            $post = new Post();
+            $post->title = $validatedData['title'];
+            $post->content = $validatedData['content'];
+            $post->user_id = Auth::id();
+
+            $post->image = 'storage/images/' . $imageName;
+            $post->save();
+        } else {
+            return redirect()->back()->withErrors(['image' => 'Не удалось загрузить фото.'])->withInput();
+        }
+
+        return redirect('/feed')->with('message', 'Пост успешно создан!');
     }
+
 
     /**
      * Display the specified resource.
