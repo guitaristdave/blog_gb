@@ -14,27 +14,41 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, ?string $username = null)
     {
-        $posts = DB::table('posts')
-        ->join('users', 'users.id', '=', 'posts.user_id')
-        ->select('posts.*', 'users.name')
-        ->paginate(10);
+        if (is_null($username)) {
+            $posts = DB::table('posts')
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->select('posts.*', 'users.name')
+                ->orderByDesc('created_at')
+                ->paginate(10);
+        } else {
+            $user = User::query()->where('name', $username)->first();
+            if (!$user) {
+                abort(404);
+            }
+            $posts = DB::table('posts')
+                ->where('user_id', '=', $user->id)
+                ->join('users', 'users.id', '=', 'posts.user_id')
+                ->select('posts.*', 'users.name')
+                ->paginate(10);
+        }
+
         return view('feed.index', compact('posts'));
     }
 
-    public function indexByUser(Request $request, int $user_id)
-    {
-        $posts = Post::query()->where('user_id', $user_id)->get();
-        return view('posts.user', compact('posts'));
-    }
+//    public function userPosts(Request $request)
+//    {
+//        $posts = DB::table('posts')->where('user_id', $user->id)->paginate(10);
+//        return view('feed.index', compact('posts'));
+//    }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('posts.create');
+        return view('feed.create');
     }
 
     /**
@@ -42,13 +56,43 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $post = new Post();
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
-        $post->user_id = Auth::id();
-        $post->save();
-        return redirect('/posts');
+
+        $errorMessages = [
+            'title.required' => 'Пожалуйста, укажите заголовок поста.',
+            'title.unique' => 'Такой заголовок уже существует',
+            'title.max' => 'Заголовок не может быть больше 255 символов',
+            'content.required' => 'Пожалуйста, введите содержимое поста.',
+            'image.required' => 'Пожалуйста, загрузите фото.',
+            'image.image' => 'Файл должен быть изображением.',
+            'image.mimes' => 'Поддерживаемые форматы изображений: jpeg, png, jpg.',
+            'image.max' => 'Максимальный размер изображения 2MB.',
+        ];
+
+        $validatedData = $request->validate([
+            'title' => 'required|unique:posts|max:255',
+            'content' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ], $errorMessages);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension(); // Получаем расширение файла
+            $image->storeAs('public/images', $imageName);
+
+            $post = new Post();
+            $post->title = $validatedData['title'];
+            $post->content = $validatedData['content'];
+            $post->user_id = Auth::id();
+
+            $post->image = 'storage/images/' . $imageName;
+            $post->save();
+        } else {
+            return redirect()->back()->withErrors(['image' => 'Не удалось загрузить фото.'])->withInput();
+        }
+
+        return redirect('/feed')->with('message', 'Пост успешно создан!');
     }
+
 
     /**
      * Display the specified resource.
@@ -68,7 +112,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('posts.edit', compact('post'));
+        return view('feed.create', compact('post'));
     }
 
     /**
@@ -76,8 +120,17 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        $post->update($request->all());
-        return redirect('/posts');
+        $errorMessages = [
+            'title.required' => 'Пожалуйста, укажите заголовок поста.',
+            'title.max' => 'Заголовок не может быть больше 255 символов',
+            'content.required' => 'Пожалуйста, введите содержимое поста.'
+        ];
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ], $errorMessages);
+        $post?->update($validatedData);
+        return redirect('/feed')->with('message', 'Post updated!');
     }
 
     /**
@@ -86,6 +139,6 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect('/posts');
+        return redirect('/feed')->with('message', 'Post deleted!');
     }
 }

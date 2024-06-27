@@ -40,7 +40,7 @@ sh scripts/build.sh && exit # Сборка (+ миграции, фронт)
 sh scripts/rebuild.sh && exit # Чистая сборка (+ миграции, фронт)
 ```
 ```sh
-sh scripts/run-dev.sh && exit # Запуск (+ фронт в dev режиме)
+bash scripts/run-dev.sh && exit # Запуск (+ фронт в dev режиме)
 ```
 ```sh
 sh scripts/migrate.sh && exit # Применение миграций (на запущенные контейнеры)
