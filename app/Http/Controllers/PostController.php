@@ -23,11 +23,6 @@ class PostController extends Controller
         return view('feed.index', compact('posts'));
     }
 
-    public function indexByUser(Request $request, int $user_id)
-    {
-        $posts = Post::query()->where('user_id', $user_id)->get();
-        return view('posts.user', compact('posts'));
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -78,7 +73,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('posts.edit', compact('post'));
+        return view('feed.create', compact('post'));
     }
 
     /**
