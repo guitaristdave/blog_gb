@@ -81,8 +81,17 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        $post->update($request->all());
-        return redirect('/posts');
+        $errorMessages = [
+            'title.required' => 'Пожалуйста, укажите заголовок поста.',
+            'title.max' => 'Заголовок не может быть больше 255 символов',
+            'content.required' => 'Пожалуйста, введите содержимое поста.'
+        ];
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ], $errorMessages);
+        $post?->update($validatedData);
+        return redirect('/feed')->with('message', 'Post updated!');
     }
 
     /**
@@ -91,6 +100,6 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect('/posts');
+        return redirect('/feed')->with('message', 'Post deleted!');
     }
 }

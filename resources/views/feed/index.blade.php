@@ -2,13 +2,14 @@
 @section('page.title', 'Лента')
 
 @section('content')
-    @if(session('message'))
-        <div class="alert alert-success">
-            {{ session('message') }}
-        </div>
-    @endif
+
     <div class="wrapper py-10">
         <div class="container mx-auto">
+            @if(session('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
             <div class="grid gap-4">
                 @foreach($posts as $post)
                     <div class="item p-5 rounded-lg">
