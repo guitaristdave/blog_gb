@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property string $title
  * @property string $content
- * @property string $user_id
+ * @property int $user_id
  * @property string image
  * @property string $created_at
  * @property string $updated_at
@@ -26,6 +26,4 @@ class Post extends Model
         'user_id',
         'image'
     ];
-
-
 }

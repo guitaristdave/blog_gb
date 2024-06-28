@@ -1,37 +1,35 @@
-@extends('layouts.base')
-@section('page.title', 'Лента')
+@section('page.title', "Пост - $post->title")
+@section('header', __($post->title))
+@section('message', session('message'))
 
-@section('content')
-    <div class="wrapper py-10">
-        <div class="container mx-auto">
-            <div class="item p-5 rounded-lg">
-                <div class="">
-                    <h5 class="text-xl font-bold"><a
-                            href="{{ route('feed.show', ['post' => $post->id]) }}">{{ $post->title }}</a></h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Автор: {{$post->name}}</h6>
-                    @if($post->image)
-                        <img src="{{ asset($post->image) }}" class="my-4 rounded-md" alt="Post Picture">
-                    @endif
-                    <p class="card-text">{{$post->content}}</p>
-                    <p class="card-text"><small class="text-muted">Дата: {{$post->created_at}}</small></p>
+<x-app-layout>
+    <div class="grid grid-cols-4 gap-4 bg-gray-50 rounded-lg">
+        @isset($post->image)
+            <a href="{{ route('feed.show', ['post' => $post->id]) }}" class="col-span-1">
+                <img class="rounded-lg mx-auto" src="{{asset($post->image)}}" alt="Post Picture">
+            </a>
+        @endisset
+        <div class="flex flex-col {{isset($post->image) ? 'col-span-3' : 'col-span-4'}} p-5">
+            <p class="flex-grow pb-4">
+                {{$post->content}}
+            </p>
+            <div class="flex gap-4 items-center w-full {{ Auth::user()->id === $post->user_id ? 'justify-end' : 'justify-between' }}">
+                <div class="text-xs text-gray-400">
+                    Опубликовано: {{date('H:i d.m.Y', strtotime($post->created_at))}}
                 </div>
+                @if(Auth::user()->id === $post->user_id)
+                    <a class="text-sm text-blue-500" href="{{ route('feed.edit', ['post' => $post->id]) }}">
+                        Редактировать
+                    </a>
+                    <a class="text-sm text-red-500" href="{{ route('feed.remove', ['post' => $post->id]) }}">
+                        Удалить
+                    </a>
+                @else
+                    <div class="text-sm text-gray-500">
+                        Автор: {{$post->name}}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
-@endsection
-
-<style>
-    .wrapper{
-        background-color: var(--bg-gray);
-
-        .item{
-            background-color: #fff;
-        }
-        .item img {
-            max-width: 100%;
-            height: auto;
-            max-height: 300px;
-            display: block;
-        }
-    }
-</style>
+</x-app-layout>

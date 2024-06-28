@@ -70,7 +70,7 @@ class ProfileController extends Controller
 
     public function posts(Request $request): View
     {
-        return view('profile.posts', [
+        return view('feed.posts', [
             'user' => $request->user(),
             'posts' => DB::table('posts')
                 ->where('user_id', '=', $request->user()->id)

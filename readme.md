@@ -50,11 +50,31 @@ sh scripts/stop.sh && exit # Остановка
 ```
 
 </details>
+
+### TODO crasher307:
+```text
+Что сделано:
+- Основной шаблон
+- Формы авторизации/регистрации ии тп.
+- Блог
+    - Лента
+    - Мои посты
+Что осталось:
+- Выпилить (app|base|guest|welcome|dashboard).blase
+- Блог
+    - Создание/редактирование поста (+ не заменяется изображение)
+    - Просмотр поста (не работает)
+    - Проверить ВЕСЬ бэк (местами просто редиректит на главную)
+- Пользователи (пока даже не смотрел)
+- Проверить ВСЕ!
+```
+
 <details class="block"><summary>Info</summary>
 
 - [Laravel readme](./laravel.README.md)
 ```text
 php artisan db:seed
+php artisan storage:link
 ```
 
 </details>
