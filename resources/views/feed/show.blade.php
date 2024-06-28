@@ -13,11 +13,11 @@
             <p class="flex-grow pb-4">
                 {{$post->content}}
             </p>
-            <div class="flex gap-4 items-center w-full {{ Auth::user()->id === $post->user_id ? 'justify-end' : 'justify-between' }}">
+            <div class="flex gap-4 items-center w-full {{ !Auth::guest() && Auth::user()->id === $post->user_id ? 'justify-end' : 'justify-between' }}">
                 <div class="text-xs text-gray-400">
                     Опубликовано: {{date('H:i d.m.Y', strtotime($post->created_at))}}
                 </div>
-                @if(Auth::user()->id === $post->user_id)
+                @if(!Auth::guest() && Auth::user()->id === $post->user_id)
                     <a class="text-sm text-blue-500" href="{{ route('feed.edit', ['post' => $post->id]) }}">
                         Редактировать
                     </a>

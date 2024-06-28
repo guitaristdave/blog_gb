@@ -10,7 +10,7 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4">
-        @if(!empty($posts))
+        @if(count($posts) > 0)
             @foreach ($posts as $post)
                 <div class="grid grid-cols-4 gap-4 bg-gray-50 rounded-lg">
                     @isset($post->image)
