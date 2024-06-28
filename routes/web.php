@@ -35,16 +35,6 @@ Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verifi
 
 Route::get('/', fn() => 'Home page')->name('home');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/own-posts', [ProfileController::class, 'posts'])->name('profile.posts');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile', [ProfileController::class, 'updateUser'])->name('profile.update-user');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/manage', [ProfileController::class, 'manageUsers'])->name('profile.manage-users');
-    Route::delete('/manage', [ProfileController::class, 'destroyUser'])->name('profile.destroy-user');
-});
-
 require __DIR__.'/auth.php';
 require __DIR__.'/profile.php';
 
