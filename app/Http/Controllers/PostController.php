@@ -31,17 +31,13 @@ class PostController extends Controller
                 ->where('user_id', '=', $user->id)
                 ->join('users', 'users.id', '=', 'posts.user_id')
                 ->select('posts.*', 'users.name')
+                ->orderByDesc('created_at')
                 ->paginate(10);
         }
 
         return view('feed.index', compact('posts'));
     }
 
-//    public function userPosts(Request $request)
-//    {
-//        $posts = DB::table('posts')->where('user_id', $user->id)->paginate(10);
-//        return view('feed.index', compact('posts'));
-//    }
 
     /**
      * Show the form for creating a new resource.
