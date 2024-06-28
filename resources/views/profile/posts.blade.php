@@ -15,7 +15,9 @@
                     @foreach ($posts as $post)
                         <div class="item rounded-lg p-5">
                             <p class="text-xl font-bold pb-3">
-                                {{ $post->title }}
+                                <a href="{{ route('feed.show', ['post' => $post->id]) }}">
+                                    {{ $post->title }}
+                                </a>
                             </p>
                             <p>
                                 {{ $post->content }}

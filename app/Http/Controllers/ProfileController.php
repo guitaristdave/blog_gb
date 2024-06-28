@@ -20,11 +20,8 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-
         return view('profile.edit', [
-            'selectedUser' => $request->id ? User::findOrFail($request->id) : '',
             'user' => $request->user(),
-            'users' => $request->user()->is_admin ? User::all()->where('id', '!=', $request->user()->id) : [],
         ]);
     }
 
@@ -33,7 +30,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated([
+        $request->user()->fill($request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($request->user()->id)],
         ]));
@@ -78,6 +75,16 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function manageUsers(Request $request): View
+    {
+
+        return view('profile.manage-users', [
+            'selectedUser' => $request->id ? User::findOrFail($request->id) : '',
+            'user' => $request->user(),
+            'users' => $request->user()->is_admin ? User::all()->where('id', '!=', $request->user()->id) : [],
+        ]);
+    }
+
     public function updateUser(ProfileUpdateRequest $request)
     {
         if ($request->user()->is_admin && $request->id){
@@ -88,6 +95,20 @@ class ProfileController extends Controller
             ]));
             $user->update($request->all());
         }
-        return Redirect::route('profile.edit')->with('status', 'user-profile-updated');
+        return Redirect::route('profile.manage-users', ['id'=>$request->id])->with('status', 'user-profile-updated');
+    }
+
+    public function destroyUser(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        if ($request->user()->is_admin && $request->id) {
+            $user = User::findOrFail($request->id);
+            $user->delete();
+        }
+
+        return Redirect::route('profile.manage-users');
     }
 }
