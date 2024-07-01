@@ -50,11 +50,20 @@ sh scripts/stop.sh && exit # Остановка
 ```
 
 </details>
+
+### TODO crasher307:
+Что осталось:
+- Поправить роуты
+- Выпилить (welcome|dashboard).blase
+- Главная
+- Исправить редиректы при невалидных данных (обернуть в try/catch обработчики и указать явный редирект + проверить сохранение сессионных переменных `->with('message', 'Пост успешно создан!')`)
+
 <details class="block"><summary>Info</summary>
 
 - [Laravel readme](./laravel.README.md)
 ```text
 php artisan db:seed
+php artisan storage:link
 ```
 
 </details>

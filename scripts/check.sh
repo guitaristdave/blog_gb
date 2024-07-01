@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2006,SC2053,SC2086
+# shellcheck disable=SC2006,SC2053,SC2086,SC2143
 
 cd "`dirname $0`/../" && clear # set root path
 
@@ -12,9 +12,9 @@ for (( i=0; i<${#SERVICES[@]}; i++ )) do
     SERVICES_IDS[$i]=$(docker-compose ps -q ${SERVICES[$i]})
     STATUS_FULL=$(docker ps --filter id=${SERVICES_IDS[$i]} --filter status=running --format "{{.Status}}")
 
-    if [[ ${STATUS_FULL} =~ (.*)(healthy)(.*) ]]; then
+    if [[ $(echo ${STATUS_FULL} | grep "healthy") ]]; then
         STATUS="healthy"
-    elif [[ ${STATUS_FULL} =~ (.*)(starting)(.*) ]]; then
+    elif [[ $(echo ${STATUS_FULL} | grep "starting") ]]; then
         STATUS="starting"
     else
         STATUS="running"

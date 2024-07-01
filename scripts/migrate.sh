@@ -1,15 +1,14 @@
 #!/bin/bash
-# shellcheck disable=SC2006,SC2086
+# shellcheck disable=SC2006,SC2086,SC2143
 
 cd "`dirname $0`/../" && clear # set root path
 
-WAITING=1
 echo "Waiting for containers to start..."
-while [[ ${WAITING} == 1 ]]; do
+while True; do
     STATUS=$(sh scripts/check.sh)
-    if [[ ${STATUS} =~ (.*)(ok)(.*) ]]; then
-        WAITING=0
+    if [[ $(echo ${STATUS} | grep "ok") ]]; then
         echo "Running migrations..."
         docker exec -it laravel php artisan migrate
+        break;
     fi
 done

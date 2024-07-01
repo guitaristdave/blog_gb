@@ -7,7 +7,9 @@ use \App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
+use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
 {
@@ -55,38 +57,41 @@ class PostController extends Controller
 
         $errorMessages = [
             'title.required' => 'Пожалуйста, укажите заголовок поста.',
-            'title.unique' => 'Такой заголовок уже существует',
+//            'title.unique' => 'Такой заголовок уже существует',
             'title.max' => 'Заголовок не может быть больше 255 символов',
             'content.required' => 'Пожалуйста, введите содержимое поста.',
-            'image.required' => 'Пожалуйста, загрузите фото.',
+//            'image.required' => 'Пожалуйста, загрузите фото.',
             'image.image' => 'Файл должен быть изображением.',
             'image.mimes' => 'Поддерживаемые форматы изображений: jpeg, png, jpg.',
             'image.max' => 'Максимальный размер изображения 2MB.',
         ];
 
-        $validatedData = $request->validate([
-            'title' => 'required|unique:posts|max:255',
-            'content' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ], $errorMessages);
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension(); // Получаем расширение файла
-            $image->storeAs('public/images', $imageName);
+        try {
+            $validatedData = $request->validate([
+                'title' => 'required|max:255',
+                'content' => 'required',
+                'image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            ], $errorMessages);
 
             $post = new Post();
+
             $post->title = $validatedData['title'];
             $post->content = $validatedData['content'];
             $post->user_id = Auth::id();
 
-            $post->image = 'storage/images/' . $imageName;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension(); // Получаем расширение файла
+                $image->storeAs('public/images', $imageName);
+                $post->image = 'storage/images/' . $imageName;
+            }
+
             $post->save();
-        } else {
-            return redirect()->back()->withErrors(['image' => 'Не удалось загрузить фото.'])->withInput();
+        } catch (ValidationException $e) {
+            return redirect()->route('feed.create')->withErrors($e->errors())->withInput();
         }
 
-        return redirect('/feed')->with('message', 'Пост успешно создан!');
+        return redirect('/own-posts')->with('message', 'Пост успешно создан!');
     }
 
 
@@ -126,7 +131,7 @@ class PostController extends Controller
             'content' => 'required',
         ], $errorMessages);
         $post?->update($validatedData);
-        return redirect('/feed')->with('message', 'Post updated!');
+        return redirect('/own-posts')->with('message', 'Post updated!');
     }
 
     /**
@@ -135,6 +140,6 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect('/feed')->with('message', 'Post deleted!');
+        return redirect('/own-posts')->with('message', 'Post deleted!');
     }
 }
