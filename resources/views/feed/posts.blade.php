@@ -1,49 +1,49 @@
-@section('page.title', 'Personal')
-@section('header', __('Личные публикации'))
-@section('message', session('message'))
+@section('page.title', __('Личные публикации'))
 
-<x-app-layout>
-    <div class="flex justify-end pb-3">
+@section('header')
+    <div class="flex items-center justify-between">
+        {{__('Личные публикации')}}
         <a href="{{route('feed.create')}}">
-            <x-primary-button class="ms-3">{{ __('Добавить пост') }}</x-primary-button>
+            <x-primary-button>{{ __('Добавить пост') }}</x-primary-button>
         </a>
     </div>
+@endsection
 
-    <div class="grid grid-cols-1 gap-4">
-        @if(count($posts) > 0)
-            @foreach ($posts as $post)
-                <div class="grid grid-cols-4 gap-4 bg-gray-50 rounded-lg">
-                    @isset($post->image)
-                        <a href="{{ route('feed.show', ['post' => $post->id]) }}" class="col-span-1">
-                            <img class="rounded-lg mx-auto" src="{{asset($post->image)}}" alt="Post Picture">
-                        </a>
-                    @endisset
-                    <div class="flex flex-col {{isset($post->image) ? 'col-span-3' : 'col-span-4'}} p-5">
+<div class="grid grid-cols-1 gap-4">
+    @if(count($posts) > 0)
+        @foreach ($posts as $post)
+            <div class="grid grid-cols-4 gap-4 bg-gray-50 rounded-lg">
+                @isset($post->image)
+                    <a href="{{route('feed.show', ['post' => $post->id])}}" class="col-span-1 p-5">
+                        <img class="rounded-lg mx-auto" src="{{asset($post->image)}}" alt="Post Picture">
+                    </a>
+                @endisset
+                <div class="flex flex-col {{isset($post->image) ? 'col-span-3' : 'col-span-4'}} p-5">
+                    <div>
                         <a href="{{ route('feed.show', ['post' => $post->id]) }}" class="text-xl font-bold">
                             {{$post->title}}
                         </a>
-                        <p class="flex-grow py-4">
-                            {{$post->content}}
-                        </p>
-                        <div class="flex gap-4 justify-end items-center w-full">
-                            <div class="text-xs text-gray-400">
-                                Опубликовано: {{date('H:i d.m.Y', strtotime($post->created_at))}}
-                            </div>
-                            <a class="text-sm text-blue-500" href="{{ route('feed.edit', ['post' => $post->id]) }}">
-                                Редактировать
-                            </a>
-                            <a class="text-sm text-red-500" href="{{ route('feed.remove', ['post' => $post->id]) }}">
-                                Удалить
-                            </a>
-                        </div>
+                    </div>
+                    <p class="flex-grow py-4">{{$post->content}}</p>
+                    <div class="flex justify-end items-center text-gray-400 text-sm cursor-default">
+                        <div class="text-xs">Опубликовано: {{date('H:i d.m.Y', strtotime($post->created_at))}}</div>
+                    </div>
+                    <div class="flex justify-end items-center gap-3 pt-2 text-gray-400 text-sm cursor-default">
+                        <a class="text-sm text-blue-500" href="{{ route('feed.edit', ['post' => $post->id]) }}">
+                            Редактировать
+                        </a>
+                        <form method="POST" action="{{ route('feed.remove', ['post' => $post->id]) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <button type="submit" class="text-sm text-red-500">{{ __('Удалить') }}</button>
+                        </form>
                     </div>
                 </div>
-            @endforeach
-        @else
-            No publications
-        @endif
-    </div>
-    <div class="py-4">
-        {{ $posts->links() }}
-    </div>
-</x-app-layout>
+            </div>
+        @endforeach
+    @else
+        {{__('Нет постов')}}
+    @endif
+</div>
+<div class="py-4">{{$posts->onEachSide(2)->links()}}</div>

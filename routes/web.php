@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -33,16 +32,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', fn() => view('dashboard'))->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', fn() => 'Home page')->name('home');
+Route::get('/', fn() => view('page.index'))->name('home');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/profile.php';
-
-Route::get('/feed', [\App\Http\Controllers\PostController::class, 'index'])->name('feed');
-Route::get('feed/create', [\App\Http\Controllers\PostController::class, 'create'])->name('feed.create');
-Route::get('/feed/{post}', [\App\Http\Controllers\PostController::class, 'show'])->where('post', '[0-9]+')->name('feed.show');
-Route::get('/feed/{username}', [\App\Http\Controllers\PostController::class, 'index'])->name('feed.user-posts');
-Route::post('/feed', [\App\Http\Controllers\PostController::class, 'store'])->name('feed.store');
-Route::get('/feed/{post}/edit', [\App\Http\Controllers\PostController::class, 'edit'])->name('feed.edit');
-Route::patch('/feed/{post}', [\App\Http\Controllers\PostController::class, 'update'])->name('feed.update');
-Route::patch('/feed/{post}/remove', [\App\Http\Controllers\PostController::class, 'destroy'])->name('feed.remove');
+require __DIR__.'/feed.php';

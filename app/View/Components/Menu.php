@@ -16,6 +16,7 @@ class Menu
             'guest' => [],
             'user' => [
                 'feed.posts' => 'Personal',
+//                'feed.user-posts' => 'Personal',
             ],
         ];
         return array_merge($menu->default, Auth::guest() ? $menu->guest : $menu->user, $list);
@@ -39,6 +40,11 @@ class Menu
 //                'profile.posts' => 'Own posts',
             ],
         ];
+        if ($auth && Auth::user()->is_admin) {
+            $menu->user = array_merge($menu->user, [
+                'profile.manage-users' => 'Manage users',
+            ]);
+        }
         return array_merge(Auth::guest() ? $menu->guest : $menu->user, $list);
     }
 }

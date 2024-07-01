@@ -1,13 +1,15 @@
-<x-guest-layout>
+@section('page.title', __('Восстановление пароля'))
+
+<div class="flex flex-col gap-3 max-w-xl mx-auto">
+    <div class="text-sm text-gray-600 text-justify">
+        {{ __('Забыли свой пароль? Без проблем. Просто сообщите нам свой адрес электронной почты, и мы вышлем вам по электронной почте ссылку для сброса пароля, которая позволит вам выбрать новый.') }}
+    </div>
+
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')"/>
+    <x-auth-session-status :status="session('status')"/>
 
-    <form class="max-w-2xl mx-auto" method="POST" action="{{ route('password.email') }}">
+    <form class="flex flex-col gap-3" method="POST" action="{{ route('password.email') }}">
         @csrf
-
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-        </div>
 
         <!-- Email Address -->
         <div>
@@ -17,9 +19,7 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+            <x-primary-button>{{ __('Отправить ссылку для восстановления') }}</x-primary-button>
         </div>
     </form>
-</x-guest-layout>
+</div>

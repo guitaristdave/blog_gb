@@ -1,4 +1,4 @@
-@extends('layouts.base')
+{{--@extends('layouts.base')--}}
 @section('page.title', 'Page Title')
 @section('head')
     <link rel="preconnect" href="https://fonts.bunny.net">

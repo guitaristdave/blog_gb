@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class ApplyLayout
 {
@@ -15,20 +15,23 @@ class ApplyLayout
      * @param Request $request
      * @param Closure(Request): (Response) $next
      * @return Response
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
         if (
-            !$response instanceof View &&
-            !str_contains(
-                strtolower($response->getContent()),
-                strtolower('<!DOCTYPE html>')
-            )
+            $response->getStatusCode() !== 200 ||
+            $response instanceof \Illuminate\Http\RedirectResponse ||
+            $response instanceof \Illuminate\Http\JsonResponse
         ) {
-            $response = response()->view('main', ['slot' => $response->getContent()]);
+            // TODO передавать сессионные переменные
+//            if (session('message')) {
+//                session()->put(session('message'));
+//            }
+            return $response;
         }
-        return $response;
+//        dd(session('message'));
+        return response()->view('layouts.main', ['slot' => $response->original]);
     }
 }

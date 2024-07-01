@@ -78,7 +78,7 @@ class ProfileController extends Controller
     public function manageUsers(Request $request): View
     {
 
-        return view('profile.manage-users', [
+        return view('profile.manage', [
             'selectedUser' => $request->id ? User::findOrFail($request->id) : '',
             'user' => $request->user(),
             'users' => $request->user()->is_admin ? User::all()->where('id', '!=', $request->user()->id) : [],
