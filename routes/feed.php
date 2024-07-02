@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
  * {post} = [0-9]+
  */
 Route::prefix('feed')->controller(PostController::class)->group(function () {
-    // TODO изменить роуты
+//    TODO изменить роуты на эти
 //    Route::get('/', 'index')->name('feed');
 //    Route::get('/my', 'indexByCurrentUserId')->name('feed.my');
 //    Route::get('/user/{user}', 'indexByUserId')->where(['user' => '[0-9]+'])->name('feed.user');
@@ -41,6 +41,7 @@ Route::prefix('feed')->controller(PostController::class)->group(function () {
     Route::get('/', 'index')->name('feed');
     Route::post('/', 'store')->name('feed.store')->middleware('auth');
     Route::get('/create', 'create')->name('feed.create')->middleware('auth');
+    Route::get('/own-posts', 'posts')->name('feed.posts')->middleware('auth');
     Route::prefix('/{post}')->where(['post' => '[0-9]+'])->group(function () {
         Route::get('/', 'show')->name('feed.show');
         Route::get('/edit', 'edit')->name('feed.edit')->middleware('auth');
@@ -49,6 +50,5 @@ Route::prefix('feed')->controller(PostController::class)->group(function () {
     });
 });
 
-//Route::get('/own-posts', [ProfileController::class, 'posts'])->name('feed.posts'); // TODO вынести отсюда
 //Route::get('/feed/{username}', [PostController::class, 'index'])->name('feed.user-posts'); // TODO мешает для feed.show
 

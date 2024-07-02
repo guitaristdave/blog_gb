@@ -20,18 +20,36 @@ class ApplyLayout
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
+
+        // Проверка статуса и типов ответов
         if (
             $response->getStatusCode() !== 200 ||
             $response instanceof \Illuminate\Http\RedirectResponse ||
             $response instanceof \Illuminate\Http\JsonResponse
         ) {
-            // TODO передавать сессионные переменные
-//            if (session('message')) {
-//                session()->put(session('message'));
-//            }
             return $response;
         }
-//        dd(session('message'));
-        return response()->view('layouts.main', ['slot' => $response->original]);
+
+        // Проверка на HTML-содержимое
+        if ($this->isHtmlResponse($response)) {
+            $response = response()->view(
+                'layouts.main',
+                [
+                    '*' => $response->original,
+                    'slot' => $response->getContent(),
+                ],
+                $response->getStatusCode(),
+                $request->headers->all()
+            );
+        }
+
+        return $response;
+    }
+
+    // Метод для проверки HTML-содержимого
+    protected function isHtmlResponse(Response $response): bool
+    {
+        $contentType = $response->headers->get('Content-Type');
+        return $contentType && str_contains(strtolower($contentType), 'text/html');
     }
 }

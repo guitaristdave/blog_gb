@@ -1,4 +1,12 @@
 @section('page.title', __('Редактирование пользователя'))
+@if(session('message') !== null)
+    <x-header-message class="max-w-xl">{{session('message')}}</x-header-message>
+@endisset
+@if($errors->any())
+    @foreach($errors->all() as $error)
+        <x-header-error class="max-w-xl">{{$error}}</x-header-error>
+    @endforeach
+@endif
 
 <div class="flex flex-col gap-3 max-w-xl mx-auto">
     @if(Auth::user()->is_admin)

@@ -1,4 +1,12 @@
 @section('page.title', __('Последние посты'))
+@if(session('message') !== null)
+    <x-header-message>{{session('message')}}</x-header-message>
+@endisset
+@if($errors->any())
+    @foreach($errors->all() as $error)
+        <x-header-error class="max-w-xl">{{$error}}</x-header-error>
+    @endforeach
+@endif
 
 @section('header')
     <div class="flex items-center justify-between">
