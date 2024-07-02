@@ -1,10 +1,4 @@
 <!DOCTYPE html>
-
-{{--@section('page.title', 'Page Title')--}}
-{{--@section('page.keywords', 'Keywords')--}}
-{{--@section('page.description', 'Description')--}}
-{{--@section('page.canonical', 'Canonical')--}}
-
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -17,6 +11,11 @@
     @include('includes.head')
 </head>
 <body class="flex flex-col justify-between min-h-screen font-sans antialiased">
+
+{{--@section('page.title', 'Page Title')--}}
+{{--@section('page.keywords', 'Keywords')--}}
+{{--@section('page.description', 'Description')--}}
+{{--@section('page.canonical', 'Canonical')--}}
 
 <header class="relative z-50 bg-white shadow">
     @include('includes.header')
@@ -37,35 +36,22 @@
     </div>
 
     <!-- Messages -->
+    {{--
     <div class="container max-w-7xl flex flex-col xl:gap-3">
-        @if(session('error'))
+        // @if(session('error'))
             <div id="error" class="flex gap-3 justify-between items-center bg-red-100 xl:rounded-xl px-4 sm:px-6 lg:px-8">
-                <div class="py-3 text-red-500 font-semibold cursor-default">{{session('error')}}</div>
+                <div class="py-3 text-red-500 font-semibold cursor-default">@yield('error')</div>
                 <x-secondary-button class="fill-current text-red-500" onclick="document.querySelector('#error').classList.add('close')">close</x-secondary-button>
             </div>
-        @endif
-        @if(session('message'))
+        // @endif
+        // @if(session('message'))
             <div id="message" class="flex gap-3 justify-between items-center bg-blue-100 xl:rounded-xl px-4 sm:px-6 lg:px-8">
-                <div class="py-3 text-blue-500 font-semibold cursor-default">{{session('message')}}</div>
+                <div class="py-3 text-blue-500 font-semibold cursor-default">@yield('message')</div>
                 <x-secondary-button class="fill-current text-red-500" onclick="document.querySelector('#message').classList.add('close')">close</x-secondary-button>
             </div>
-        @endif
+        // @endif
     </div>
-
-    <!--
-    {{--    TODO: check/remove--}}
-    {{--    auth: min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100--}}
-    {{--    guest_block: w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg--}}
-    {{--    Page Heading:--}}
-    {{--    @isset($header)--}}
-    {{--        <header class="bg-white shadow">--}}
-    {{--            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">--}}
-    {{--                {{ $header }}--}}
-    {{--            </div>--}}
-    {{--        </header>--}}
-    {{--    @endisset--}}
-    {{--    Logo: <x-application-logo class="w-20 h-20 fill-current text-gray-500" />--}}
-    -->
+    --}}
 
     <!-- Content -->
     <div class="container max-w-7xl py-3 px-4 sm:px-6 lg:px-8 flex-grow mt-6 xl:mt-0">

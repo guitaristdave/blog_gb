@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -20,9 +19,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return view('profile.edit', ['user' => $request->user()]);
     }
 
     /**
@@ -30,18 +27,24 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($request->user()->id)],
-        ]));
+        try {
+            $request->user()->fill(
+                $request->validate([
+                    'name' => ['required', 'string', 'max:255'],
+                    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($request->user()->id)],
+                ])
+            );
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+            if ($request->user()->isDirty('email')) {
+                $request->user()->email_verified_at = null;
+            }
+
+            $request->user()->save();
+        } catch (ValidationException $e) {
+            return redirect()->route('profile.edit')->withErrors($e->errors())->withInput();
         }
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return redirect()->route('profile.edit')->with('message', 'Profile updated');
     }
 
     /**
@@ -49,35 +52,28 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        try {
+            $request->validateWithBag('userDeletion', [
+                'password' => ['required', 'current_password'],
+            ]);
 
-        $user = $request->user();
+            $user = $request->user();
 
-        Auth::logout();
+            Auth::logout();
 
-        $user->delete();
+            $user->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        } catch (ValidationException $e) {
+            return redirect()->route('profile.edit')->withErrors($e->errors())->withInput();
+        }
 
-        return Redirect::to('/');
-    }
-
-    public function posts(Request $request): View
-    {
-        return view('feed.posts', [
-            'user' => $request->user(),
-            'posts' => DB::table('posts')
-                ->where('user_id', '=', $request->user()->id)
-                ->paginate(4),
-        ]);
+        return redirect()->to('/');
     }
 
     public function manageUsers(Request $request): View
     {
-
         return view('profile.manage', [
             'selectedUser' => $request->id ? User::findOrFail($request->id) : '',
             'user' => $request->user(),
@@ -87,26 +83,37 @@ class ProfileController extends Controller
 
     public function updateUser(ProfileUpdateRequest $request)
     {
-        if ($request->user()->is_admin && $request->id){
-            $user = User::findOrFail($request->id);
-            $user->fill($request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
-            ]));
-            $user->update($request->all());
+        try {
+            if ($request->user()->is_admin && $request->id) {
+                $user = User::findOrFail($request->id);
+                $user->fill(
+                    $request->validate([
+                        'name' => ['required', 'string', 'max:255'],
+                        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+                    ])
+                );
+                $user->update($request->all());
+            }
+        } catch (ValidationException $e) {
+            return redirect()->route('profile.manage-users', ['id'=>$request->id])->withErrors($e->errors())->withInput();
         }
-        return Redirect::route('profile.manage-users', ['id'=>$request->id])->with('status', 'user-profile-updated');
+
+        return redirect()->route('profile.manage-users', ['id'=>$request->id])->with('status', 'user-profile-updated');
     }
 
     public function destroyUser(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        try {
+            $request->validateWithBag('userDeletion', [
+                'password' => ['required', 'current_password'],
+            ]);
 
-        if ($request->user()->is_admin && $request->id) {
-            $user = User::findOrFail($request->id);
-            $user->delete();
+            if ($request->user()->is_admin && $request->id) {
+                $user = User::findOrFail($request->id);
+                $user->delete();
+            }
+        } catch (ValidationException $e) {
+            return redirect()->route('profile.manage-users', ['id'=>$request->id])->withErrors($e->errors())->withInput();
         }
 
         return Redirect::route('profile.manage-users');

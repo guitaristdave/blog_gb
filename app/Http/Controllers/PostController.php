@@ -7,8 +7,6 @@ use \App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\View;
 use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
@@ -40,6 +38,20 @@ class PostController extends Controller
         return view('feed.index', compact('posts'));
     }
 
+    public function posts(Request $request)
+    {
+        if (Auth::guest()) {
+            return redirect()->route('feed');
+        }
+
+        return view('feed.posts', [
+            'user' => $request->user(),
+            'posts' => DB::table('posts')
+                ->where('user_id', '=', Auth::user()->id)
+                ->orderByDesc('created_at')
+                ->paginate(10),
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -54,7 +66,6 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-
         $errorMessages = [
             'title.required' => 'Пожалуйста, укажите заголовок поста.',
 //            'title.unique' => 'Такой заголовок уже существует',
@@ -91,9 +102,8 @@ class PostController extends Controller
             return redirect()->route('feed.create')->withErrors($e->errors())->withInput();
         }
 
-        return redirect('/own-posts')->with('message', 'Пост успешно создан!');
+        return redirect()->route('feed.posts')->with('message', 'Пост успешно создан!');
     }
-
 
     /**
      * Display the specified resource.
@@ -121,17 +131,24 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        $errorMessages = [
-            'title.required' => 'Пожалуйста, укажите заголовок поста.',
-            'title.max' => 'Заголовок не может быть больше 255 символов',
-            'content.required' => 'Пожалуйста, введите содержимое поста.'
-        ];
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ], $errorMessages);
-        $post?->update($validatedData);
-        return redirect('/own-posts')->with('message', 'Post updated!');
+        try {
+            $errorMessages = [
+                'title.required' => 'Пожалуйста, укажите заголовок поста.',
+                'title.max' => 'Заголовок не может быть больше 255 символов',
+                'content.required' => 'Пожалуйста, введите содержимое поста.'
+            ];
+
+            $validatedData = $request->validate([
+                'title' => 'required|max:255',
+                'content' => 'required',
+            ], $errorMessages);
+
+            $post?->update($validatedData);
+        } catch (ValidationException $e) {
+            return redirect()->route('feed.edit', ['post' => $post->id])->withErrors($e->errors())->withInput();
+        }
+
+        return redirect()->route('feed.show', ['post' => $post->id])->with('message', 'Post updated!');
     }
 
     /**
@@ -140,6 +157,6 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect('/own-posts')->with('message', 'Post deleted!');
+        return redirect()->route('feed.posts')->with('message', 'Post deleted!');
     }
 }
